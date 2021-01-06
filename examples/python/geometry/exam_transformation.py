@@ -18,7 +18,7 @@ import open3d_tutorial as o3dtut
 # change to True if you want to interact with the visualization windows
 o3dtut.interactive = not "CI" in os.environ
 
-todo = ["rotated_1", "rotated_2"]
+todo = ["rotated_1x", "rotated_2", "rotated_3"]
 
 # %% [markdown]
 # # Transformation
@@ -86,11 +86,52 @@ if "rotated_2" in todo:
     mesh = o3d.geometry.TriangleMesh.create_coordinate_frame()
     mesh_r0 = copy.deepcopy(mesh)
     R = mesh.get_rotation_matrix_from_xyz((np.pi / 2, np.pi/3, np.pi / 4))
+    print("rotated_2")
+    print(R)
     mesh_r0.rotate(R, center=(0, 0, 0))
     mesh_r0.scale(0.5, center=mesh_r0.get_center())
     print(f'Center of mesh: {mesh.get_center()}')
     print(f'Center of translated0 mesh: {mesh_r0.get_center()}')
     o3d.visualization.draw_geometries([mesh, mesh_r0], window_name="rotated_2")
+
+
+def get_rt():
+    import scipy.spatial
+    RT = scipy.spatial.transform.Rotation
+
+    rt = None
+    if False:
+        print("rt get from matrix")
+        mat = mesh.get_rotation_matrix_from_xyz((np.pi / 2, np.pi/3, np.pi / 4))
+        print(mat)
+        rt = RT.from_matrix(mat)
+    else:
+        print("rt get from quat")
+        quat = [0.70105738, 0.09229596, 0.56098553, 0.43045933]
+        print(quat)
+        rt = RT.from_quat(quat)
+
+    print("")
+    print("matrix\t", rt.as_matrix())
+    # qyat [0.70105738 0.09229596 0.56098553 0.43045933]
+    print("quat\t", rt.as_quat())
+    print("mrp\t", rt.as_mrp())
+    # print("euler", rt.as_euler())
+    print("rotvec\t", rt.as_rotvec())
+    return rt
+
+if "rotated_3" in todo:
+    rt = get_rt()
+    mesh = o3d.geometry.TriangleMesh.create_coordinate_frame()
+    mesh_r0 = copy.deepcopy(mesh)
+    R = rt.as_matrix()
+    print("rotated_3")
+    print(R)
+    mesh_r0.rotate(R, center=(0, 0, 0))
+    mesh_r0.scale(0.5, center=mesh_r0.get_center())
+    print(f'Center of mesh: {mesh.get_center()}')
+    print(f'Center of translated0 mesh: {mesh_r0.get_center()}')
+    o3d.visualization.draw_geometries([mesh, mesh_r0], window_name="rotated_3")
 
 # %% [markdown]
 # The function `rotate` has a second argument `center` that is by default set to `True`. This indicates that the object is first centered prior to applying the rotation and then moved back to its previous center. If this argument is set to `False`, then the rotation will be applied directly, such that the whole geometry is rotated around the coordinate center. This implies that the mesh center can be changed after the rotation.
