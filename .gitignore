@@ -1,3 +1,6 @@
+venv
+.vscode
+
 # Windows build temp cmake file
 CMakeSettings.json
 
